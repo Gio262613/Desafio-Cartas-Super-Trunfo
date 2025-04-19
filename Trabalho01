@@ -2,125 +2,87 @@
 
 // Estrutura para armazenar os dados de uma carta
 typedef struct {
+    char estado[50];
+    int codigo;
     char nome[50];
     unsigned long int populacao;
     float area;
     float pib;
     int pontos_turisticos;
-    float densidade;
+    float densidade_populacional;
     float pib_per_capita;
+    float super_poder;
 } Carta;
 
-// Função para calcular atributos derivados
+// Função para calcular os atributos derivados de uma carta
 void calcular_atributos(Carta *carta) {
-    carta->densidade = carta->populacao / carta->area;
+    carta->densidade_populacional = carta->populacao / carta->area;
     carta->pib_per_capita = carta->pib / carta->populacao;
+
+    // Super Poder: população + área + PIB + pontos turísticos + PIB per capita + inverso da densidade
+    carta->super_poder = 
+        (float)carta->populacao +
+        carta->area +
+        carta->pib +
+        (float)carta->pontos_turisticos +
+        carta->pib_per_capita +
+        (1.0f / carta->densidade_populacional);
 }
 
-// Função para exibir o menu de seleção de atributos
-void exibir_menu(int excluido) {
-    printf("\nEscolha um atributo:\n");
-    if (excluido != 1) printf("1. População\n");
-    if (excluido != 2) printf("2. Área\n");
-    if (excluido != 3) printf("3. PIB\n");
-    if (excluido != 4) printf("4. Pontos Turísticos\n");
-    if (excluido != 5) printf("5. Densidade Demográfica\n");
-    if (excluido != 6) printf("6. PIB per Capita\n");
+// Função para ler uma carta do usuário
+void ler_carta(Carta *carta) {
+    printf("\nDigite o estado: ");
+    scanf(" %[^\n]", carta->estado);
+
+    printf("Digite o código: ");
+    scanf("%d", &carta->codigo);
+
+    printf("Digite o nome: ");
+    scanf(" %[^\n]", carta->nome);
+
+    printf("Digite a população: ");
+    scanf("%lu", &carta->populacao);
+
+    printf("Digite a área: ");
+    scanf("%f", &carta->area);
+
+    printf("Digite o PIB: ");
+    scanf("%f", &carta->pib);
+
+    printf("Digite o número de pontos turísticos: ");
+    scanf("%d", &carta->pontos_turisticos);
+
+    calcular_atributos(carta);
 }
 
-// Função para obter o valor de um atributo da carta
-float obter_atributo(Carta carta, int escolha) {
-    switch (escolha) {
-        case 1: return (float)carta.populacao;
-        case 2: return carta.area;
-        case 3: return carta.pib;
-        case 4: return (float)carta.pontos_turisticos;
-        case 5: return carta.densidade;
-        case 6: return carta.pib_per_capita;
-        default: return -1;
-    }
+// Função para comparar dois valores e retornar 1 se valor1 vence, 0 caso contrário
+int comparar_maior(float valor1, float valor2) {
+    return valor1 > valor2 ? 1 : 0;
 }
 
-// Função para obter o nome do atributo
-const char* nome_atributo(int escolha) {
-    switch (escolha) {
-        case 1: return "População";
-        case 2: return "Área";
-        case 3: return "PIB";
-        case 4: return "Pontos Turísticos";
-        case 5: return "Densidade Demográfica";
-        case 6: return "PIB per Capita";
-        default: return "Desconhecido";
-    }
+int comparar_menor(float valor1, float valor2) {
+    return valor1 < valor2 ? 1 : 0;
 }
 
 int main() {
-    Carta c1 = {"Brasil", 213000000, 8515767, 2200000, 50, 0, 0};
-    Carta c2 = {"Estados Unidos", 331000000, 9833517, 22675000, 75, 0, 0};
+    Carta carta1, carta2;
 
-    calcular_atributos(&c1);
-    calcular_atributos(&c2);
+    printf("=== Cadastro da Carta 1 ===");
+    ler_carta(&carta1);
 
-    int atributo1, atributo2;
-
-    // Escolha do primeiro atributo
-    do {
-        exibir_menu(0);
-        printf("Escolha o primeiro atributo (1 a 6): ");
-        scanf("%d", &atributo1);
-        if (atributo1 < 1 || atributo1 > 6)
-            printf("Opção inválida!\n");
-    } while (atributo1 < 1 || atributo1 > 6);
-
-    // Escolha do segundo atributo, diferente do primeiro
-    do {
-        exibir_menu(atributo1);
-        printf("Escolha o segundo atributo (diferente do primeiro): ");
-        scanf("%d", &atributo2);
-        if (atributo2 < 1 || atributo2 > 6 || atributo2 == atributo1)
-            printf("Opção inválida!\n");
-    } while (atributo2 < 1 || atributo2 > 6 || atributo2 == atributo1);
-
-    // Obter valores dos atributos
-    float v1_attr1 = obter_atributo(c1, atributo1);
-    float v2_attr1 = obter_atributo(c2, atributo1);
-    float v1_attr2 = obter_atributo(c1, atributo2);
-    float v2_attr2 = obter_atributo(c2, atributo2);
+    printf("\n=== Cadastro da Carta 2 ===");
+    ler_carta(&carta2);
 
     // Comparações
-    int resultado1, resultado2;
+    printf("\n\nComparação de Cartas:\n");
 
-    resultado1 = (atributo1 == 5) ? (v1_attr1 < v2_attr1 ? 1 : 0) : (v1_attr1 > v2_attr1 ? 1 : 0);
-    resultado2 = (atributo2 == 5) ? (v1_attr2 < v2_attr2 ? 1 : 0) : (v1_attr2 > v2_attr2 ? 1 : 0);
-
-    float soma1 = v1_attr1 + v1_attr2;
-    float soma2 = v2_attr1 + v2_attr2;
-
-    // Exibição dos resultados
-    printf("\n=== Comparação de Cartas ===\n");
-    printf("Carta 1: %s\n", c1.nome);
-    printf("Carta 2: %s\n\n", c2.nome);
-
-    printf("%s:\n", nome_atributo(atributo1));
-    printf("  %s: %.2f\n", c1.nome, v1_attr1);
-    printf("  %s: %.2f\n", c2.nome, v2_attr1);
-    printf("  Resultado: %s venceu!\n\n", resultado1 ? c1.nome : c2.nome);
-
-    printf("%s:\n", nome_atributo(atributo2));
-    printf("  %s: %.2f\n", c1.nome, v1_attr2);
-    printf("  %s: %.2f\n", c2.nome, v2_attr2);
-    printf("  Resultado: %s venceu!\n\n", resultado2 ? c1.nome : c2.nome);
-
-    printf("Soma dos atributos:\n");
-    printf("  %s: %.2f\n", c1.nome, soma1);
-    printf("  %s: %.2f\n", c2.nome, soma2);
-
-    if (soma1 > soma2)
-        printf("Resultado final: %s venceu a rodada!\n", c1.nome);
-    else if (soma2 > soma1)
-        printf("Resultado final: %s venceu a rodada!\n", c2.nome);
-    else
-        printf("Resultado final: Empate!\n");
+    printf("População: Carta 1 venceu (%d)\n", comparar_maior((float)carta1.populacao, (float)carta2.populacao));
+    printf("Área: Carta 1 venceu (%d)\n", comparar_maior(carta1.area, carta2.area));
+    printf("PIB: Carta 1 venceu (%d)\n", comparar_maior(carta1.pib, carta2.pib));
+    printf("Pontos Turísticos: Carta 1 venceu (%d)\n", comparar_maior((float)carta1.pontos_turisticos, (float)carta2.pontos_turisticos));
+    printf("Densidade Populacional: Carta 1 venceu (%d)\n", comparar_menor(carta1.densidade_populacional, carta2.densidade_populacional));
+    printf("PIB per Capita: Carta 1 venceu (%d)\n", comparar_maior(carta1.pib_per_capita, carta2.pib_per_capita));
+    printf("Super Poder: Carta 1 venceu (%d)\n", comparar_maior(carta1.super_poder, carta2.super_poder));
 
     return 0;
 }
